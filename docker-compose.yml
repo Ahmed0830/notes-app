@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - notes_data:/data
+    restart: unless-stopped
+
+volumes:
+  notes_data:

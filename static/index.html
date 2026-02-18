@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOTES</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;900&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f0e8;
+    --accent: #c8391e;
+    --muted: #8c8070;
+    --line: #d4cfc5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 27px,
+        var(--line) 27px,
+        var(--line) 28px
+      );
+  }
+
+  header {
+    border-bottom: 3px solid var(--ink);
+    padding: 24px 40px 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 48px;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .tagline {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 4px;
+  }
+
+  .count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+  }
+
+  .compose {
+    display: flex;
+    gap: 0;
+    margin-bottom: 48px;
+    border: 2px solid var(--ink);
+    background: white;
+  }
+
+  textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    resize: none;
+    height: 80px;
+    background: transparent;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  textarea::placeholder { color: var(--muted); }
+
+  button.add-btn {
+    border: none;
+    border-left: 2px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    writing-mode: vertical-rl;
+  }
+
+  button.add-btn:hover {
+    background: var(--accent);
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .note-item {
+    border-bottom: 1px solid var(--line);
+    padding: 20px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-start: start;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .note-content {
+    font-size: 14px;
+    line-height: 1.8;
+    word-break: break-word;
+  }
+
+  .note-meta {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 18px;
+    padding: 4px 8px;
+    transition: color 0.15s;
+    font-family: 'Playfair Display', serif;
+    align-self: start;
+    margin-top: 4px;
+  }
+
+  .delete-btn:hover { color: var(--accent); }
+
+  .empty {
+    text-align: center;
+    padding: 60px 0;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 12px 20px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">NOT<span>E</span>S</div>
+  <div class="tagline">Personal Archive</div>
+  <div class="count" id="count">— 0 entries</div>
+</header>
+
+<main>
+  <div class="compose">
+    <textarea id="input" placeholder="Write something worth keeping…" maxlength="1000"></textarea>
+    <button class="add-btn" onclick="addNote()">Add</button>
+  </div>
+
+  <div class="section-label">Archive</div>
+  <div class="notes-list" id="notesList"></div>
+  <div class="empty" id="empty" style="display:none">No notes yet</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr + ' UTC');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function loadNotes() {
+    const res = await fetch('/api/notes');
+    const notes = await res.json();
+    const list = document.getElementById('notesList');
+    const empty = document.getElementById('empty');
+    document.getElementById('count').textContent = `— ${notes.length} entr${notes.length === 1 ? 'y' : 'ies'}`;
+
+    list.innerHTML = '';
+    if (notes.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+
+    notes.forEach(note => {
+      const el = document.createElement('div');
+      el.className = 'note-item';
+      el.innerHTML = `
+        <div>
+          <div class="note-content">${escapeHtml(note.content)}</div>
+          <div class="note-meta">${formatDate(note.created_at)}</div>
+        </div>
+        <button class="delete-btn" onclick="deleteNote(${note.id})" title="Delete">×</button>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  async function addNote() {
+    const input = document.getElementById('input');
+    const content = input.value.trim();
+    if (!content) return;
+
+    const res = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+
+    if (res.ok) {
+      input.value = '';
+      showToast('Note saved');
+      loadNotes();
+    }
+  }
+
+  async function deleteNote(id) {
+    await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
+    showToast('Deleted');
+    loadNotes();
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  document.getElementById('input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.metaKey) addNote();
+  });
+
+  loadNotes();
+</script>
+</body>
+</html>
